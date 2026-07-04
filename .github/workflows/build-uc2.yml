@@ -168,7 +168,9 @@ jobs:
           cmake --build . --config ${{ env.BUILD_TYPE }}
           cmake --install . --strip --config ${{ env.BUILD_TYPE }}
           ctest -VV -C ${{ env.BUILD_TYPE }}
-          mv ${{ env.BUILD_TYPE }} instdir
+          # cp instead of mv: vctip.exe (MSVC telemetry) may still hold handles
+          # inside the build directory, which makes the rename fail
+          cp -r ${{ env.BUILD_TYPE }} instdir
 
       - name: '🛠️ Win MSVC 32 setup'
         if: contains(matrix.config.name, 'MSVC 32')
@@ -195,7 +197,9 @@ jobs:
           cmake --build . --config ${{ env.BUILD_TYPE }}
           cmake --install . --strip --config ${{ env.BUILD_TYPE }}
           ctest -VV -C ${{ env.BUILD_TYPE }}
-          mv ${{ env.BUILD_TYPE }} instdir
+          # cp instead of mv: vctip.exe (MSVC telemetry) may still hold handles
+          # inside the build directory, which makes the rename fail
+          cp -r ${{ env.BUILD_TYPE }} instdir
 
       - name: '🚧 Win MINGW build'
         if: contains(matrix.config.mingw, 'MINGW')
