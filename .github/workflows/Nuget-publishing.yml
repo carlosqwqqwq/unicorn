@@ -94,9 +94,10 @@ jobs:
           cmake --build . --config ${{ matrix.config.build_type }}
           cmake --install . --strip --config ${{ matrix.config.build_type }}
           ctest -VV -C ${{ matrix.config.build_type }}
-          # cp instead of mv: vctip.exe (MSVC telemetry) may still hold handles
-          # inside the build directory, which makes the rename fail
-          cp -r Release instdir
+          # vctip.exe (MSVC telemetry) may still hold handles inside the build
+          # directory and make the rename below fail with EPERM
+          taskkill //IM vctip.exe //F || true
+          mv Release instdir
 
       - name: '🛠️ Win MSVC 32 setup'
         if: contains(matrix.config.name, 'MSVC 32')
@@ -124,9 +125,10 @@ jobs:
           cmake --build . --config ${{ matrix.config.build_type }}
           cmake --install . --strip --config ${{ matrix.config.build_type }}
           ctest -VV -C ${{ matrix.config.build_type }}
-          # cp instead of mv: vctip.exe (MSVC telemetry) may still hold handles
-          # inside the build directory, which makes the rename fail
-          cp -r Release instdir
+          # vctip.exe (MSVC telemetry) may still hold handles inside the build
+          # directory and make the rename below fail with EPERM
+          taskkill //IM vctip.exe //F || true
+          mv Release instdir
 
       - name: '📦 Pack artifact'
         if: always()

@@ -47,7 +47,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runs-on: [macos-latest]
+        # Pinned to macos-15: zig 0.14.x cannot link against the macOS 26 SDK
+        # shipped on macos-latest (libSystem symbols all come up undefined).
+        # Revisit when upgrading to a newer zig.
+        runs-on: [macos-15]
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v4
