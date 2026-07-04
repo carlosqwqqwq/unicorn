@@ -168,10 +168,16 @@ jobs:
           cmake --build . --config ${{ env.BUILD_TYPE }}
           cmake --install . --strip --config ${{ env.BUILD_TYPE }}
           ctest -VV -C ${{ env.BUILD_TYPE }}
-          # vctip.exe (MSVC telemetry) may still hold handles inside the build
-          # directory and make the rename below fail with EPERM
-          taskkill //IM vctip.exe //F || true
-          mv ${{ env.BUILD_TYPE }} instdir
+          # vctip.exe (MSVC telemetry) and antivirus scans may transiently hold
+          # handles inside the build directory and make the rename fail, so
+          # retry for a while, killing vctip on each attempt
+          tries=0
+          until mv ${{ env.BUILD_TYPE }} instdir; do
+            tries=$((tries+1))
+            if [ $tries -ge 12 ]; then echo "mv keeps failing, giving up"; exit 1; fi
+            taskkill //IM vctip.exe //F || true
+            sleep 5
+          done
 
       - name: '🛠️ Win MSVC 32 setup'
         if: contains(matrix.config.name, 'MSVC 32')
@@ -198,10 +204,16 @@ jobs:
           cmake --build . --config ${{ env.BUILD_TYPE }}
           cmake --install . --strip --config ${{ env.BUILD_TYPE }}
           ctest -VV -C ${{ env.BUILD_TYPE }}
-          # vctip.exe (MSVC telemetry) may still hold handles inside the build
-          # directory and make the rename below fail with EPERM
-          taskkill //IM vctip.exe //F || true
-          mv ${{ env.BUILD_TYPE }} instdir
+          # vctip.exe (MSVC telemetry) and antivirus scans may transiently hold
+          # handles inside the build directory and make the rename fail, so
+          # retry for a while, killing vctip on each attempt
+          tries=0
+          until mv ${{ env.BUILD_TYPE }} instdir; do
+            tries=$((tries+1))
+            if [ $tries -ge 12 ]; then echo "mv keeps failing, giving up"; exit 1; fi
+            taskkill //IM vctip.exe //F || true
+            sleep 5
+          done
 
       - name: '🚧 Win MINGW build'
         if: contains(matrix.config.mingw, 'MINGW')
